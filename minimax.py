@@ -62,6 +62,11 @@ def is_valid_location(board, col):
     return board[0][col] == 0
 
 
+# making sure there is a piece to popout 
+def is_valid_popout(board, col):
+    print (board[ROWS - 1][col])
+    return board[ROWS - 1][col] != 0
+
 # checking where the piece will fall in the current column
 # i.e., finding the first zero row in the given column
 def get_next_open_row(board, col):
@@ -350,7 +355,7 @@ while not game_over:
                 ypos = event.pos[1]
                 row = int(math.floor(ypos/SQUARESIZE))
                 
-                if row == ROWS:
+                if row == ROWS and is_valid_popout(board, col):
                     popout_piece(board, col)
 
 
