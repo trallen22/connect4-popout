@@ -419,11 +419,7 @@ while not game_over:
                 
                 draw_board(board) 
 
-                # increment turn by 1
-                turn += 1
-
-                # this will alternate between 0 and 1 withe very turn
-                turn = turn % 2 
+                turn = AI_TURN
 
         pygame.display.update()
 
@@ -454,7 +450,4 @@ while not game_over:
             t.start()
         draw_board(board)    
 
-        # increment turn by 1
-        turn += 1
-        # this will alternate between 0 and 1 withe very turn
-        turn = turn % 2
+        turn = PLAYER_TURN
