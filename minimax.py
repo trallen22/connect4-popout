@@ -362,13 +362,14 @@ while not game_over:
                 elif is_valid_location(board, col):
                     row = get_next_open_row(board, col)
                     drop_piece(board, row, col, PLAYER_PIECE)
-                    if winning_move(board, PLAYER_PIECE):
-                        print("PLAYER 1 WINS!")
-                        label = my_font.render("PLAYER 1 WINS!", 1, RED)
-                        screen.blit(label, (40, 10))
-                        not_over = False
-                        t = Timer(3.0, end_game)
-                        t.start()
+                    
+                if winning_move(board, PLAYER_PIECE):
+                    print("PLAYER 1 WINS!")
+                    label = my_font.render("PLAYER 1 WINS!", 1, RED)
+                    screen.blit(label, (40, 10))
+                    not_over = False
+                    t = Timer(3.0, end_game)
+                    t.start()
                 
                 draw_board(board) 
 
