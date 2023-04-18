@@ -64,7 +64,6 @@ def is_valid_location(board, col):
 
 # making sure there is a piece to popout 
 def is_valid_popout(board, col):
-    print (board[ROWS - 1][col])
     return board[ROWS - 1][col] != 0
 
 # checking where the piece will fall in the current column
@@ -198,9 +197,13 @@ def is_terminal_node(board):
 # maximizing_palyer is a boolean value that tells whether we are maximizing or minimizing
 # in this implementation, AI is maximizing.
 def minimax(board, depth, alpha, beta, maximizing_player):
+    action = 0
 
     # all valid locations on the board
     valid_locations = get_valid_locations(board)
+
+    # all valid popout columns 
+    valid_popouts = get_valid_popouts(board)
 
     # boolean that tells if the current board is terminal
     is_terminal = is_terminal_node(board)
@@ -240,6 +243,7 @@ def minimax(board, depth, alpha, beta, maximizing_player):
             if new_score > value:
                 value = new_score
                 column = col
+                action = 0
             # alpha is the best option we have overall
             alpha = max(value, alpha) 
             # if alpha (our current move) is greater (better) than beta (opponent's best move), then 
@@ -247,7 +251,24 @@ def minimax(board, depth, alpha, beta, maximizing_player):
             if alpha >= beta:
                 break
 
-        return column, value
+        for col in valid_popouts:
+            b_copy = board.copy()
+            popout_piece(b_copy, col)
+            # recursive call
+            new_score = minimax(b_copy, depth-1, alpha, beta, False)[1]
+            # if the score for this column is better than what we already have
+            if new_score > value:
+                value = new_score
+                column = col
+                action = 1
+            # alpha is the best option we have overall
+            alpha = max(value, alpha) 
+            # if alpha (our current move) is greater (better) than beta (opponent's best move), then 
+            # the oponent will never take it and we can prune this branch
+            if alpha >= beta:
+                break
+
+        return column, value, action
     
     # same as above, but for the minimizing player
     else: # for thte minimizing player
@@ -261,10 +282,24 @@ def minimax(board, depth, alpha, beta, maximizing_player):
             if new_score < value:
                 value = new_score
                 column = col
+                action = 0
             beta = min(value, beta) 
             if alpha >= beta:
                 break
-        return column, value
+        
+        for col in valid_popouts:
+            b_copy = board.copy()
+            popout_piece(b_copy, col)
+            new_score = minimax(b_copy, depth-1, alpha, beta, True)[1]
+            if new_score < value:
+                value = new_score
+                column = col
+                action = 1
+            beta = min(value, beta) 
+            if alpha >= beta:
+                break
+
+        return column, value, action
 
 
 # get all columns where a piece can be
@@ -276,6 +311,17 @@ def get_valid_locations(board):
             valid_locations.append(column)
 
     return valid_locations
+
+
+# get all columns where a piece can be
+def get_valid_popouts(board):
+    valid_popouts = []
+    
+    for column in range(COLS):
+        if is_valid_popout(board, column):
+            valid_popouts.append(column)
+
+    return valid_popouts
 
 
 # end the game which will close the window eventually
@@ -362,7 +408,7 @@ while not game_over:
                 elif is_valid_location(board, col):
                     row = get_next_open_row(board, col)
                     drop_piece(board, row, col, PLAYER_PIECE)
-                    
+
                 if winning_move(board, PLAYER_PIECE):
                     print("PLAYER 1 WINS!")
                     label = my_font.render("PLAYER 1 WINS!", 1, RED)
@@ -386,19 +432,26 @@ while not game_over:
     if turn == AI_TURN and not game_over and not_over:
 
         # the column to drop in is found using minimax
-        col, minimax_score = minimax(board, 5, -math.inf, math.inf, True)
+        col, minimax_score, action = minimax(board, 5, -math.inf, math.inf, True)
 
-        if is_valid_location(board, col):
-            pygame.time.wait(500)
-            row = get_next_open_row(board, col)
-            drop_piece(board, row, col, AI_PIECE)
-            if winning_move(board, AI_PIECE):
-                print("PLAYER 2 WINS!")
-                label = my_font.render("PLAYER 2 WINS!", 1, YELLOW)
-                screen.blit(label, (40, 10))
-                not_over = False
-                t = Timer(3.0, end_game)
-                t.start()
+        if action == 0:
+            if is_valid_location(board, col):
+                pygame.time.wait(500)
+                row = get_next_open_row(board, col)
+                drop_piece(board, row, col, AI_PIECE)
+
+        elif action == 1:
+            if is_valid_popout(board, col):
+                pygame.time.wait(500)
+                popout_piece(board, col)
+
+        if winning_move(board, AI_PIECE):
+            print("PLAYER 2 WINS!")
+            label = my_font.render("PLAYER 2 WINS!", 1, YELLOW)
+            screen.blit(label, (40, 10))
+            not_over = False
+            t = Timer(3.0, end_game)
+            t.start()
         draw_board(board)    
 
         # increment turn by 1
