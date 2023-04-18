@@ -432,13 +432,13 @@ while not game_over:
         # the column to drop in is found using minimax
         col, minimax_score, action = minimax(board, 5, -math.inf, math.inf, True)
 
-        if action == 0:
+        if action == 0: # action = 0 is a drop
             if is_valid_location(board, col):
                 pygame.time.wait(500)
                 row = get_next_open_row(board, col)
                 drop_piece(board, row, col, AI_PIECE)
 
-        elif action == 1:
+        elif action == 1: # action = 1 is a pop
             if is_valid_popout(board, col):
                 pygame.time.wait(500)
                 popout_piece(board, col)
