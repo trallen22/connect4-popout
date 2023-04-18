@@ -51,7 +51,9 @@ def drop_piece(board, row, col, piece):
 # popout the piece at the bottom of the row, move rest of pieces in column down one
 def popout_piece(board, col):
     for i in range(ROWS - 1, 0, -1):
+        # moves every piece down one spot
         board[i][col] = board[i-1][col]
+    board[0][col] = 0
 
 
 
@@ -213,14 +215,14 @@ def minimax(board, depth, alpha, beta, maximizing_player):
     if depth == 0 or is_terminal:
         if is_terminal: # winning move 
             if winning_move(board, AI_PIECE):
-                return (None, 10000000)
+                return (None, 10000000, 0)
             elif winning_move(board, PLAYER_PIECE):
-                return (None, -10000000)
+                return (None, -10000000, 0)
             else:
-                return (None, 0)
+                return (None, 0, 0)
         # if depth is zero, we simply score the current board
         else: # depth is zero
-            return (None, score_position(board, AI_PIECE))
+            return (None, score_position(board, AI_PIECE), 0)
 
     # if the current board is not rerminal and we are maximizing
     if maximizing_player:
