@@ -56,7 +56,6 @@ def popout_piece(board, col):
     board[0][col] = 0
 
 
-
 # checking that the top row of the selected column is still not filled
 # i.e., that there is still space in the current column
 # note that indexing starts at 0
@@ -64,12 +63,19 @@ def is_valid_location(board, col):
     return board[0][col] == 0
 
 
-# making sure there is a piece to popout 
-def is_valid_popout(board, col):
-    return board[ROWS - 1][col] != 0
+# making sure there is a piece to popout
+def is_valid_popout(board, col, player_piece):
+    if (player_piece == board[ROWS - 1][col]):
+        # if the piece is the player's piece return true
+        return board[ROWS - 1][col] != 0
+    else:
+        return False
+
 
 # checking where the piece will fall in the current column
 # i.e., finding the first zero row in the given column
+
+
 def get_next_open_row(board, col):
     for r in range(ROWS-1, -1, -1):
         if board[r][col] == 0:
@@ -97,7 +103,7 @@ def winning_move(board, piece):
                 return True
 
     # checking negatively sloped diagonals for win
-    for c in range(3,COLS):
+    for c in range(3, COLS):
         for r in range(3, ROWS):
             if board[r][c] == piece and board[r-1][c-1] == piece and board[r-2][c-2] == piece and board[r-3][c-3] == piece:
                 return True
@@ -108,13 +114,17 @@ def winning_move(board, piece):
 def draw_board(board):
     for c in range(COLS):
         for r in range(ROWS):
-            pygame.draw.rect(screen, BLUE, (c * SQUARESIZE, r * SQUARESIZE + SQUARESIZE, SQUARESIZE, SQUARESIZE ))
+            pygame.draw.rect(screen, BLUE, (c * SQUARESIZE, r *
+                             SQUARESIZE + SQUARESIZE, SQUARESIZE, SQUARESIZE))
             if board[r][c] == 0:
-                pygame.draw.circle(screen, BLACK, (int(c * SQUARESIZE + SQUARESIZE/2), int(r* SQUARESIZE + SQUARESIZE + SQUARESIZE/2)), circle_radius)
+                pygame.draw.circle(screen, BLACK, (int(c * SQUARESIZE + SQUARESIZE/2), int(
+                    r * SQUARESIZE + SQUARESIZE + SQUARESIZE/2)), circle_radius)
             elif board[r][c] == 1:
-                pygame.draw.circle(screen, RED, (int(c * SQUARESIZE + SQUARESIZE/2), int(r* SQUARESIZE + SQUARESIZE + SQUARESIZE/2)), circle_radius)
-            else :
-                pygame.draw.circle(screen, YELLOW, (int(c * SQUARESIZE + SQUARESIZE/2), int(r* SQUARESIZE + SQUARESIZE + SQUARESIZE/2)), circle_radius)
+                pygame.draw.circle(screen, RED, (int(c * SQUARESIZE + SQUARESIZE/2), int(
+                    r * SQUARESIZE + SQUARESIZE + SQUARESIZE/2)), circle_radius)
+            else:
+                pygame.draw.circle(screen, YELLOW, (int(c * SQUARESIZE + SQUARESIZE/2), int(
+                    r * SQUARESIZE + SQUARESIZE + SQUARESIZE/2)), circle_radius)
 
     pygame.display.update()
 
@@ -142,9 +152,9 @@ def evaluate_window(window, piece):
 
     # or decrese it if the oponent has 3 in a row
     if window.count(opponent_piece) == 3 and window.count(0) == 1:
-        score -= 4 
+        score -= 4
 
-    return score    
+    return score
 
 
 # scoring the overall attractiveness of a board after a piece has been droppped
@@ -153,34 +163,34 @@ def score_position(board, piece):
     score = 0
 
     # score center column --> we are prioritizing the central column because it provides more potential winning windows
-    center_array = [int(i) for i in list(board[:,COLS//2])]
+    center_array = [int(i) for i in list(board[:, COLS//2])]
     center_count = center_array.count(piece)
     score += center_count * 6
 
     # below we go over every single window in different directions and adding up their values to the score
     # score horizontal
     for r in range(ROWS):
-        row_array = [int(i) for i in list(board[r,:])]
+        row_array = [int(i) for i in list(board[r, :])]
         for c in range(COLS - 3):
             window = row_array[c:c + 4]
             score += evaluate_window(window, piece)
 
     # score vertical
     for c in range(COLS):
-        col_array = [int(i) for i in list(board[:,c])]
+        col_array = [int(i) for i in list(board[:, c])]
         for r in range(ROWS-3):
             window = col_array[r:r+4]
             score += evaluate_window(window, piece)
 
     # score positively sloped diagonals
-    for r in range(3,ROWS):
+    for r in range(3, ROWS):
         for c in range(COLS - 3):
             window = [board[r-i][c+i] for i in range(4)]
             score += evaluate_window(window, piece)
 
     # score negatively sloped diagonals
-    for r in range(3,ROWS):
-        for c in range(3,COLS):
+    for r in range(3, ROWS):
+        for c in range(3, COLS):
             window = [board[r-i][c-i] for i in range(4)]
             score += evaluate_window(window, piece)
 
@@ -188,6 +198,8 @@ def score_position(board, piece):
 
 # checking if the given turn or in other words node in the minimax tree is terminal
 # a terminal node is player winning, AI winning or board being filled up
+
+
 def is_terminal_node(board):
     return winning_move(board, PLAYER_PIECE) or winning_move(board, AI_PIECE) or len(get_valid_locations(board)) == 0
 
@@ -204,7 +216,7 @@ def minimax(board, depth, alpha, beta, maximizing_player):
     # all valid locations on the board
     valid_locations = get_valid_locations(board)
 
-    # all valid popout columns 
+    # all valid popout columns
     valid_popouts = get_valid_popouts(board)
 
     # boolean that tells if the current board is terminal
@@ -213,7 +225,7 @@ def minimax(board, depth, alpha, beta, maximizing_player):
     # if the board is terminal or depth == 0
     # we score the win very high and a draw as 0
     if depth == 0 or is_terminal:
-        if is_terminal: # winning move 
+        if is_terminal:  # winning move
             if winning_move(board, AI_PIECE):
                 return (None, 10000000, 0)
             elif winning_move(board, PLAYER_PIECE):
@@ -221,10 +233,10 @@ def minimax(board, depth, alpha, beta, maximizing_player):
             else:
                 return (None, 0, 0)
         # if depth is zero, we simply score the current board
-        else: # depth is zero
+        else:  # depth is zero
             return (None, score_position(board, AI_PIECE), 0)
 
-    # if the current board is not rerminal and we are maximizing
+    # if the current board is not terminal and we are maximizing
     if maximizing_player:
 
         # initial value is what we do not want - negative infinity
@@ -247,8 +259,8 @@ def minimax(board, depth, alpha, beta, maximizing_player):
                 column = col
                 action = 0
             # alpha is the best option we have overall
-            alpha = max(value, alpha) 
-            # if alpha (our current move) is greater (better) than beta (opponent's best move), then 
+            alpha = max(value, alpha)
+            # if alpha (our current move) is greater (better) than beta (opponent's best move), then
             # the oponent will never take it and we can prune this branch
             if alpha >= beta:
                 break
@@ -264,16 +276,16 @@ def minimax(board, depth, alpha, beta, maximizing_player):
                 column = col
                 action = 1
             # alpha is the best option we have overall
-            alpha = max(value, alpha) 
-            # if alpha (our current move) is greater (better) than beta (opponent's best move), then 
+            alpha = max(value, alpha)
+            # if alpha (our current move) is greater (better) than beta (opponent's best move), then
             # the oponent will never take it and we can prune this branch
             if alpha >= beta:
                 break
 
         return column, value, action
-    
+
     # same as above, but for the minimizing player
-    else: # for thte minimizing player
+    else:  # for thte minimizing player
         value = math.inf
         column = random.choice(valid_locations)
         for col in valid_locations:
@@ -285,11 +297,15 @@ def minimax(board, depth, alpha, beta, maximizing_player):
                 value = new_score
                 column = col
                 action = 0
-            beta = min(value, beta) 
+            beta = min(value, beta)
             if alpha >= beta:
                 break
-        
+
         for col in valid_popouts:
+            if maximizing_player == 1:
+                minimizing_player = 2
+            else:
+                minimizing_player = 1
             b_copy = board.copy()
             popout_piece(b_copy, col)
             new_score = minimax(b_copy, depth-1, alpha, beta, True)[1]
@@ -297,7 +313,7 @@ def minimax(board, depth, alpha, beta, maximizing_player):
                 value = new_score
                 column = col
                 action = 1
-            beta = min(value, beta) 
+            beta = min(value, beta)
             if alpha >= beta:
                 break
 
@@ -307,7 +323,7 @@ def minimax(board, depth, alpha, beta, maximizing_player):
 # get all columns where a piece can be
 def get_valid_locations(board):
     valid_locations = []
-    
+
     for column in range(COLS):
         if is_valid_location(board, column):
             valid_locations.append(column)
@@ -318,9 +334,9 @@ def get_valid_locations(board):
 # get all columns where a piece can be
 def get_valid_popouts(board):
     valid_popouts = []
-    
+
     for column in range(COLS):
-        if is_valid_popout(board, column):
+        if is_valid_popout(board, column, AI_PIECE):
             valid_popouts.append(column)
 
     return valid_popouts
@@ -388,24 +404,24 @@ while not game_over:
             pygame.draw.rect(screen, BLACK, (0, 0, width, SQUARESIZE))
             xpos = pygame.mouse.get_pos()[0]
             if turn == PLAYER_TURN:
-                pygame.draw.circle(screen, RED, (xpos, int(SQUARESIZE/2)), circle_radius )
+                pygame.draw.circle(
+                    screen, RED, (xpos, int(SQUARESIZE/2)), circle_radius)
 
         # if player clicks the button, we drop their piece down
         if event.type == pygame.MOUSEBUTTONDOWN and not_over:
-            pygame.draw.rect(screen, BLACK, (0,0, width, SQUARESIZE))
+            pygame.draw.rect(screen, BLACK, (0, 0, width, SQUARESIZE))
 
             # ask for player 1 inupt
             if turn == PLAYER_TURN:
 
                 # we assume players will use correct input
-                xpos = event.pos[0] 
-                col = int(math.floor(xpos/SQUARESIZE)) 
+                xpos = event.pos[0]
+                col = int(math.floor(xpos/SQUARESIZE))
                 ypos = event.pos[1]
                 row = int(math.floor(ypos/SQUARESIZE))
-                
-                if row == ROWS and is_valid_popout(board, col):
-                    popout_piece(board, col)
 
+                if row == ROWS and is_valid_popout(board, col, turn+1):
+                    popout_piece(board, col)
 
                 elif is_valid_location(board, col):
                     row = get_next_open_row(board, col)
@@ -418,28 +434,28 @@ while not game_over:
                     not_over = False
                     t = Timer(3.0, end_game)
                     t.start()
-                
-                draw_board(board) 
+
+                draw_board(board)
 
                 turn = AI_TURN
 
         pygame.display.update()
 
-                     
     # if its the AI's turn
     if turn == AI_TURN and not game_over and not_over:
 
         # the column to drop in is found using minimax
-        col, minimax_score, action = minimax(board, 5, -math.inf, math.inf, True)
+        col, minimax_score, action = minimax(
+            board, 5, -math.inf, math.inf, True)
 
-        if action == 0: # action = 0 is a drop
+        if action == 0:  # action = 0 is a drop
             if is_valid_location(board, col):
                 pygame.time.wait(500)
                 row = get_next_open_row(board, col)
                 drop_piece(board, row, col, AI_PIECE)
 
-        elif action == 1: # action = 1 is a pop
-            if is_valid_popout(board, col):
+        elif action == 1:  # action = 1 is a pop
+            if is_valid_popout(board, col, turn + 1):
                 pygame.time.wait(500)
                 popout_piece(board, col)
 
@@ -450,6 +466,6 @@ while not game_over:
             not_over = False
             t = Timer(3.0, end_game)
             t.start()
-        draw_board(board)    
+        draw_board(board)
 
         turn = PLAYER_TURN
