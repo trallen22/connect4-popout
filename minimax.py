@@ -145,10 +145,25 @@ def evaluate_window(window, piece):
         score += 5
     elif window.count(piece) == 2 and window.count(0) == 2:
         score += 2
+    
+    if window.count(piece) == 4:
+        score += 100
+    elif window.count(piece) == 3:
+        score += 5
+    elif window.count(piece) == 2:
+        score += 2
 
     # or decrese it if the oponent has 3 in a row
     if window.count(opponent_piece) == 3 and window.count(0) == 1:
+        score -= 5
+
+    elif window.count(opponent_piece) == 4:
+        score -= 10
+    elif window.count(opponent_piece) == 3:
         score -= 4
+    elif window.count(opponent_piece) == 2:
+        score -= 1
+
 
     return score
 
@@ -226,7 +241,7 @@ def minimax(board, depth, alpha, beta, maximizing_player):
         else:  # depth is zero
             return (None, score_position(board, AI_PIECE), 0)
 
-    valid_moves = []
+    valid_moves = [] # array of array -> [column, action]
     valid_locations = get_valid_locations(board)
     for col in valid_locations:
         valid_moves.append([col, 0]) # 0 is drop
