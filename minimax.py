@@ -65,11 +65,7 @@ def is_valid_location(board, col):
 
 # making sure there is a piece to popout
 def is_valid_popout(board, col, player_piece):
-    if (player_piece == board[ROWS - 1][col]):
-        # if the piece is the player's piece return true
-        return board[ROWS - 1][col] != 0
-    else:
-        return False
+    return player_piece == board[ROWS - 1][col]
 
 
 # checking where the piece will fall in the current column
@@ -213,12 +209,6 @@ def is_terminal_node(board):
 def minimax(board, depth, alpha, beta, maximizing_player):
     action = 0
 
-    # all valid locations on the board
-    valid_locations = get_valid_locations(board)
-
-    # all valid popout columns
-    valid_popouts = get_valid_popouts(board)
-
     # boolean that tells if the current board is terminal
     is_terminal = is_terminal_node(board)
 
@@ -236,8 +226,16 @@ def minimax(board, depth, alpha, beta, maximizing_player):
         else:  # depth is zero
             return (None, score_position(board, AI_PIECE), 0)
 
+    valid_moves = []
+    valid_locations = get_valid_locations(board)
+    for col in valid_locations:
+        valid_moves.append([col, 0]) # 0 is drop
+
     # if the current board is not terminal and we are maximizing
     if maximizing_player:
+
+        for col in get_valid_popouts(board, AI_PIECE):
+            valid_moves.append([col, 1]) # 1 is pop
 
         # initial value is what we do not want - negative infinity
         value = -math.inf
@@ -247,34 +245,18 @@ def minimax(board, depth, alpha, beta, maximizing_player):
 
         # for every valid column, we simulate dropping a piece with the help of a board copy
         # and run the minimax on it with decresed depth and switched player
-        for col in valid_locations:
-            row = get_next_open_row(board, col)
+        for move in valid_moves:
             b_copy = board.copy()
-            drop_piece(b_copy, row, col, AI_PIECE)
-            # recursive call
+            if move[1] == 0:
+                row = get_next_open_row(board, move[0])
+                drop_piece(b_copy, row, move[0], AI_PIECE)
+            elif move[1] == 1:
+                popout_piece(b_copy, move[0])
             new_score = minimax(b_copy, depth-1, alpha, beta, False)[1]
-            # if the score for this column is better than what we already have
             if new_score > value:
                 value = new_score
-                column = col
-                action = 0
-            # alpha is the best option we have overall
-            alpha = max(value, alpha)
-            # if alpha (our current move) is greater (better) than beta (opponent's best move), then
-            # the oponent will never take it and we can prune this branch
-            if alpha >= beta:
-                break
-
-        for col in valid_popouts:
-            b_copy = board.copy()
-            popout_piece(b_copy, col)
-            # recursive call
-            new_score = minimax(b_copy, depth-1, alpha, beta, False)[1]
-            # if the score for this column is better than what we already have
-            if new_score > value:
-                value = new_score
-                column = col
-                action = 1
+                column = move[0]
+                action = move[1]
             # alpha is the best option we have overall
             alpha = max(value, alpha)
             # if alpha (our current move) is greater (better) than beta (opponent's best move), then
@@ -286,33 +268,23 @@ def minimax(board, depth, alpha, beta, maximizing_player):
 
     # same as above, but for the minimizing player
     else:  # for thte minimizing player
+        for col in get_valid_popouts(board, PLAYER_PIECE):
+            valid_moves.append([col, 1]) # 1 is pop
+
         value = math.inf
         column = random.choice(valid_locations)
-        for col in valid_locations:
-            row = get_next_open_row(board, col)
+        for move in valid_moves:
             b_copy = board.copy()
-            drop_piece(b_copy, row, col, PLAYER_PIECE)
+            if move[1] == 0:
+                row = get_next_open_row(board, move[0])
+                drop_piece(b_copy, row, move[0], PLAYER_PIECE)
+            elif move[1] == 1:
+                popout_piece(b_copy, move[0])
             new_score = minimax(b_copy, depth-1, alpha, beta, True)[1]
             if new_score < value:
                 value = new_score
-                column = col
-                action = 0
-            beta = min(value, beta)
-            if alpha >= beta:
-                break
-
-        for col in valid_popouts:
-            if maximizing_player == 1:
-                minimizing_player = 2
-            else:
-                minimizing_player = 1
-            b_copy = board.copy()
-            popout_piece(b_copy, col)
-            new_score = minimax(b_copy, depth-1, alpha, beta, True)[1]
-            if new_score < value:
-                value = new_score
-                column = col
-                action = 1
+                column = move[0]
+                action = move[1]
             beta = min(value, beta)
             if alpha >= beta:
                 break
@@ -331,12 +303,12 @@ def get_valid_locations(board):
     return valid_locations
 
 
-# get all columns where a piece can be
-def get_valid_popouts(board):
+# get all columns where a piece can be popped out
+def get_valid_popouts(board, cur_piece):
     valid_popouts = []
 
     for column in range(COLS):
-        if is_valid_popout(board, column, AI_PIECE):
+        if is_valid_popout(board, column, cur_piece):
             valid_popouts.append(column)
 
     return valid_popouts
