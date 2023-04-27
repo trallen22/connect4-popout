@@ -1,4 +1,5 @@
 # for representing the board as a matrix and doing operations on it
+from operator import truediv
 import numpy as np
 # for gui
 import pygame
@@ -60,7 +61,10 @@ def popout_piece(board, col):
 # i.e., that there is still space in the current column
 # note that indexing starts at 0
 def is_valid_location(board, col):
-    return board[0][col] == 0
+    if board[0][col] == 0:
+        return True
+    else:
+        return False
 
 
 # making sure there is a piece to popout
