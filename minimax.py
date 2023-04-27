@@ -144,14 +144,14 @@ def evaluate_window(window, piece):
 
     # based on how many friendly pieces there are in the window, we increase the score
     if window.count(piece) == 4:
-        score += 100
+        score += 1000
     elif window.count(piece) == 3 and window.count(0) == 1:
         score += 5
     elif window.count(piece) == 2 and window.count(0) == 2:
         score += 2
     
     if window.count(piece) == 4:
-        score += 100
+        score += 1000
     elif window.count(piece) == 3:
         score += 5
     elif window.count(piece) == 2:
@@ -168,7 +168,6 @@ def evaluate_window(window, piece):
     elif window.count(opponent_piece) == 2:
         score -= 1
 
-
     return score
 
 
@@ -180,7 +179,7 @@ def score_position(board, piece):
     # score center column --> we are prioritizing the central column because it provides more potential winning windows
     center_array = [int(i) for i in list(board[:, COLS//2])]
     center_count = center_array.count(piece)
-    score += center_count * 6
+    score += center_count * 3
 
     # below we go over every single window in different directions and adding up their values to the score
     # score horizontal
@@ -216,7 +215,14 @@ def score_position(board, piece):
 
 
 def is_terminal_node(board):
-    return winning_move(board, PLAYER_PIECE) or winning_move(board, AI_PIECE) or len(get_valid_locations(board)) == 0
+    if winning_move(board, PLAYER_PIECE):
+        return 1
+    elif winning_move(board, AI_PIECE):
+        return 2
+    elif len(get_valid_locations(board)) == 0:
+        return 3
+    else:
+        return 0
 
 
 # The algorithm calculating the best move to make given a depth of the search tree.
@@ -233,11 +239,11 @@ def minimax(board, depth, alpha, beta, maximizing_player):
 
     # if the board is terminal or depth == 0
     # we score the win very high and a draw as 0
-    if depth == 0 or is_terminal:
-        if is_terminal:  # winning move
-            if winning_move(board, AI_PIECE):
+    if depth == 0 or not (is_terminal == 0):
+        if not(is_terminal == 0):  # winning move
+            if is_terminal == 2:
                 return (None, 10000000, 0)
-            elif winning_move(board, PLAYER_PIECE):
+            elif is_terminal == 1:
                 return (None, -10000000, 0)
             else:
                 return (None, 0, 0)
