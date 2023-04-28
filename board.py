@@ -17,7 +17,10 @@ class Board:
         return valid_locations
 
     def is_valid_drop(self, col):
-        return self.state[0][col] == 0
+        if col >= self.cols or col < 0:
+            return False
+        else:
+            return self.state[0][col] == 0
 
     def drop_piece(self, col, piece):
         for r in range(self.rows-1, -1, -1):
@@ -33,7 +36,10 @@ class Board:
         return valid_popouts
 
     def is_valid_popout(self, col, player_piece):
-        return player_piece == self.state[self.rows - 1][col]
+        if col >= self.cols or col < 0:
+            return False
+        else:
+            return player_piece == self.state[self.rows - 1][col]
 
     def popout_piece(self, col):
         for i in range(self.rows - 1, 0, -1):
