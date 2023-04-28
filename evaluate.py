@@ -26,6 +26,34 @@ def score_four(a, b, c, d, myPiece, oppPiece):
     elif d == oppPiece:
         curScore -= 2
 
+    window = [a, b, c, d]
+
+     # based on how many friendly pieces there are in the window, we increase the score
+    if window.count(myPiece) == 4:
+        curScore += 1000
+    elif window.count(myPiece) == 3 and window.count(0) == 1:
+        curScore += 5
+    elif window.count(myPiece) == 2 and window.count(0) == 2:
+        curScore += 2
+    
+    if window.count(myPiece) == 4:
+        curScore += 1000
+    elif window.count(myPiece) == 3:
+        curScore += 5
+    elif window.count(myPiece) == 2:
+        curScore += 2
+
+    # or decrese it if the oponent has 3 in a row
+    if window.count(oppPiece) == 3 and window.count(0) == 1:
+        curScore -= 5
+
+    elif window.count(oppPiece) == 4:
+        curScore -= 10
+    elif window.count(oppPiece) == 3:
+        curScore -= 4
+    elif window.count(oppPiece) == 2:
+        curScore -= 1
+
     if curScore < 0:
         return -(curScore ** 2)
     else:
@@ -40,18 +68,18 @@ def score_board(curBoard, myPiece, oppPiece):
         r = 0
         while r < curBoard.rows:
             if c < curBoard.cols - 3:
-                curScore += (4 - abs(c+1 - midBoard))**2 * score_four(
+                curScore += (4 - abs(c+1 - midBoard)) * score_four(
                     curBoard.state[r][c], curBoard.state[r][c+1], curBoard.state[r][c+2], curBoard.state[r][c+3], myPiece, oppPiece)
                 if r >= 3:
-                    curScore += (4 - abs(c+1 - midBoard))**2 * score_four(
+                    curScore += (4 - abs(c+1 - midBoard)) * score_four(
                         curBoard.state[r][c], curBoard.state[r-1][c+1], curBoard.state[r-2][c+2], curBoard.state[r-3][c+3], myPiece, oppPiece)
             # checking vertical 'windows' of 4 for win
             if r < curBoard.rows - 3:
-                curScore += (4 - abs(c - midBoard))**2 * score_four(
+                curScore += (4 - abs(c - midBoard)) * score_four(
                     curBoard.state[r][c], curBoard.state[r+1][c], curBoard.state[r+2][c], curBoard.state[r+3][c], myPiece, oppPiece)
             # checking negative sloped diagonal
             if c >= 3 and r >= 3 and r < curBoard.rows:
-                curScore += (4 - abs(c - midBoard))**2 * score_four(
+                curScore += (4 - abs(c - midBoard)) * score_four(
                     curBoard.state[r][c], curBoard.state[r-1][c-1], curBoard.state[r-2][c-2], curBoard.state[r-3][c-3], myPiece, oppPiece)
             r += 1
             if winner == 1:
