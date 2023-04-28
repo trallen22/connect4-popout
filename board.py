@@ -49,6 +49,12 @@ class Board:
             validMoves.append([col, 1])
         return validMoves
 
+    def no_moves(self, curPiece):
+        if len(self.get_valid_moves(curPiece)) == 0:
+            return True
+        else: 
+            return False
+
     def copy(self):
         return Board(self.rows, self.cols, self.state.copy())
 
@@ -58,4 +64,5 @@ class Board:
             for j in range(len(self.state[0])):
                 curBoard += f' {int(self.state[i][j])}'
             curBoard += '\n'
+        curBoard += '\n 0 1 2 3 4 5 6\n'
         return curBoard
