@@ -53,7 +53,7 @@ class Board:
         return Board(self.rows, self.cols, self.state.copy())
 
     def __str__(self):
-        curBoard = ''
+        curBoard = '\n'
         for i in range(len(self.state)):
             for j in range(len(self.state[0])):
                 curBoard += f' {int(self.state[i][j])}'
