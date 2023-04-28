@@ -1,22 +1,23 @@
 from board import Board
-from evaluate import score_board
+from evaluate import score_board, winning_move
 import math
 import random
 
 def minimax(board, depth, alpha, beta, maximizing_player):
     action = 0
-    if maximizing_player:
-        curPiece = 2 # AI is maximizing
-        oppPiece = 1
-    else:
-        curPiece = 1 # Player is minimizing
-        oppPiece = 2
+
+    curPiece = 2 # AI is maximizing
+    oppPiece = 1
 
     if depth == 0:
         return (None, score_board(board, curPiece, oppPiece), 0)
-
+    
     # if the current board is not terminal and we are maximizing
     if maximizing_player:
+        if winning_move(board, oppPiece):
+            return (None, 10000000, 0)
+        elif winning_move(board, curPiece):
+            return (None, -10000000, 0)
 
         valid_moves = board.get_valid_moves(curPiece)
 
@@ -45,20 +46,24 @@ def minimax(board, depth, alpha, beta, maximizing_player):
             # the oponent will never take it and we can prune this branch
             if alpha >= beta:
                 break
-
         return column, value, action
 
     # same as above, but for the minimizing player
-    else:  # for thte minimizing player
+    else:  # for the minimizing player
         
-        valid_moves = board.get_valid_moves(curPiece)
+        if winning_move(board, curPiece):
+            return (None, 10000000, 0)
+        elif winning_move(board, oppPiece):
+            return (None, -10000000, 0)
+
+        valid_moves = board.get_valid_moves(oppPiece)
         value = math.inf
         column = 0
 
         for move in valid_moves:
             b_copy = board.copy()
             if move[1] == 0:
-                b_copy.drop_piece(move[0], curPiece)
+                b_copy.drop_piece(move[0], oppPiece)
             elif move[1] == 1:
                 b_copy.popout_piece(move[0])
             new_score = minimax(b_copy, depth-1, alpha, beta, True)[1]
