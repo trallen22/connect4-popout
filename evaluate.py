@@ -96,24 +96,24 @@ def winning_move(curBoard, curPiece):
             if c < curBoard.cols - 3:
                 if curBoard.state[r][c] == curPiece and curBoard.state[r][c+1] == curPiece and \
                     curBoard.state[r][c+2] == curPiece and curBoard.state[r][c+3] == curPiece:
-                    print("win A")
+                    print(f'win A with r = {r} c = {c}')
                     return True 
                 if r >= 3:
                     if curBoard.state[r][c] == curPiece and curBoard.state[r-1][c+1] == curPiece and \
                         curBoard.state[r-2][c+2] == curPiece and curBoard.state[r-3][c+3] == curPiece:
-                        print("win B")
+                        print(f'win B with r = {r} c = {c}')
                         return True
             # checking vertical 'windows' of 4 for win
             if r < curBoard.rows - 3:
                 if curBoard.state[r][c] == curPiece and curBoard.state[r+1][c] == curPiece and \
                     curBoard.state[r+2][c] == curPiece and curBoard.state[r+3][c] == curPiece:
-                    print("win C")
+                    print(f'win C with r = {r} c = {c}')
                     return True
             # checking negative sloped diagonal
             if c >= 3 and r >= 3 and r < curBoard.rows:
-                if curBoard.state[r][c] == curPiece and curBoard.state[r-1][c-1] and \
+                if curBoard.state[r][c] == curPiece and curBoard.state[r-1][c-1] == curPiece and \
                     curBoard.state[r-2][c-2] == curPiece and curBoard.state[r-3][c-3] == curPiece:
-                    print("win D")
+                    print(f'win D with r = {r} c = {c}')
                     return True
             r += 1
     return False
