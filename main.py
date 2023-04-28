@@ -23,32 +23,41 @@ curBoard = Board(ROWS, COLS)
 
 turn = random.choice([0, 1])
 
-turn = 0
-
 os.system('clear')
 print(curBoard)
 
 while play:
     
     if turn == PLAYER_TURN: 
-        player_move = input("play move (d#) drop or (p#) pop: ")
-        if player_move[0] == 'd':
-            curBoard.drop_piece(int(player_move[1]), PLAYER_PIECE)
-        elif player_move[0] == 'p':
-            curBoard.popout_piece(int(player_move[1]))
-        elif player_move == 'quit':
-            play = 0
+        makeMove = 1
+        while makeMove:
+            player_move = input("play move (d#) drop or (p#) pop: ")
+            if player_move[0] == 'd' and curBoard.is_valid_drop(int(player_move[1])):
+                curBoard.drop_piece(int(player_move[1]), PLAYER_PIECE)
+                makeMove = 0
+            elif player_move[0] == 'p' and curBoard.is_valid_popout(int(player_move[1]), PLAYER_PIECE):
+                curBoard.popout_piece(int(player_move[1]))
+                makeMove = 0
+            elif player_move == 'quit':
+                play = 0
+                break
+            else:
+                print('invalid move')
         os.system('clear')
         print(curBoard)
+        print(f'last move: action = {player_move[0]} col = {player_move[1]}')
         if winning_move(curBoard, PLAYER_PIECE):
             print("CONGRATS PLAYER")
+            play = 0
+        elif winning_move(curBoard, AI_PIECE):
+            print("CONGRATS COMPUTER")
             play = 0
         else: 
             turn = AI_TURN
 
     elif turn == AI_TURN:
         col, value, action = minimax(
-            curBoard, 5, -math.inf, math.inf, True)
+            curBoard, 2, -math.inf, math.inf, True)
         if action == 0: # drop 
             curBoard.drop_piece(col, AI_PIECE)
         elif action == 1: # pop
@@ -57,10 +66,12 @@ while play:
             print('something went wrong')
         os.system('clear')
         print(curBoard)
+        print(f'last move: action = {action} col = {col}')
         if winning_move(curBoard, AI_PIECE):
             print("CONGRATS COMPUTER")
             play = 0
+        elif winning_move(curBoard, PLAYER_PIECE):
+            print("CONGRATS PLAYER")
+            play = 0
         else: 
             turn = PLAYER_TURN
-
-    
