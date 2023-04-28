@@ -6,9 +6,9 @@ def evaluate(board):
 def score_four(a, b, c, d, myPiece, oppPiece):
     curScore = 0
     if a == myPiece and b == myPiece and c == myPiece and d == myPiece:
-        return 1000
+        return 100000
     elif a == oppPiece and b == oppPiece and c == oppPiece and d == oppPiece:
-        return -1000
+        return -100000
     if a == myPiece:
         curScore += 2
     elif a == oppPiece:
@@ -43,26 +43,28 @@ def score_four(a, b, c, d, myPiece, oppPiece):
     elif window.count(myPiece) == 2:
         curScore += 2
 
-    # or decrese it if the oponent has 3 in a row
+    # or decrease it if the opponent has 3 in a row
     if window.count(oppPiece) == 3 and window.count(0) == 1:
-        curScore -= 5
+        curScore -= 20
 
     elif window.count(oppPiece) == 4:
-        curScore -= 10
+        curScore -= 1000
     elif window.count(oppPiece) == 3:
-        curScore -= 4
+        curScore -= 15
     elif window.count(oppPiece) == 2:
-        curScore -= 1
+        curScore -= 5
 
     if curScore < 0:
         return -(curScore ** 2)
     else:
         return curScore ** 2
 
+
+# TODO: add winning values and terminal checks
+
 def score_board(curBoard, myPiece, oppPiece):
     # checking horizontal 'windows' of 4 for win and positively sloped diagonals
     curScore = 0
-    winner = 0
     midBoard = curBoard.cols//2
     for c in range(curBoard.cols):
         r = 0
@@ -82,10 +84,6 @@ def score_board(curBoard, myPiece, oppPiece):
                 curScore += (4 - abs(c - midBoard)) * score_four(
                     curBoard.state[r][c], curBoard.state[r-1][c-1], curBoard.state[r-2][c-2], curBoard.state[r-3][c-3], myPiece, oppPiece)
             r += 1
-            if winner == 1:
-                return 10000000
-            elif winner == 2:
-                return -10000000
     return curScore
 
 def winning_move(curBoard, curPiece):
@@ -98,20 +96,24 @@ def winning_move(curBoard, curPiece):
             if c < curBoard.cols - 3:
                 if curBoard.state[r][c] == curPiece and curBoard.state[r][c+1] == curPiece and \
                     curBoard.state[r][c+2] == curPiece and curBoard.state[r][c+3] == curPiece:
+                    print("win A")
                     return True 
                 if r >= 3:
                     if curBoard.state[r][c] == curPiece and curBoard.state[r-1][c+1] == curPiece and \
                         curBoard.state[r-2][c+2] == curPiece and curBoard.state[r-3][c+3] == curPiece:
+                        print("win B")
                         return True
             # checking vertical 'windows' of 4 for win
             if r < curBoard.rows - 3:
                 if curBoard.state[r][c] == curPiece and curBoard.state[r+1][c] == curPiece and \
                     curBoard.state[r+2][c] == curPiece and curBoard.state[r+3][c] == curPiece:
+                    print("win C")
                     return True
             # checking negative sloped diagonal
             if c >= 3 and r >= 3 and r < curBoard.rows:
                 if curBoard.state[r][c] == curPiece and curBoard.state[r-1][c-1] and \
                     curBoard.state[r-2][c-2] == curPiece and curBoard.state[r-3][c-3] == curPiece:
+                    print("win D")
                     return True
             r += 1
     return False
