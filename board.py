@@ -64,11 +64,21 @@ class Board:
     def copy(self):
         return Board(self.rows, self.cols, self.state.copy())
 
+    def get_string(self):
+        strBoard = ''
+        for i in range(self.rows):
+            for j in range(self.cols):
+                strBoard += str(int(self.state[i][j]))
+        return strBoard
+
     def __str__(self):
         curBoard = '\n'
         for i in range(len(self.state)):
             for j in range(len(self.state[0])):
                 curBoard += f' {int(self.state[i][j])}'
             curBoard += '\n'
-        curBoard += '\n 0 1 2 3 4 5 6\n'
+        curBoard += '\n'
+        for i in range(self.cols):
+            curBoard += f' {i}'
+        curBoard += '\n'
         return curBoard
