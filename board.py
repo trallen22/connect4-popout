@@ -61,7 +61,7 @@ class Board:
         else: 
             return False
 
-    def copy(self):
+    def copyBoard(self):
         return Board(self.rows, self.cols, self.state.copy())
 
     def get_string(self):
