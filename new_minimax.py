@@ -2,6 +2,7 @@ from board import Board
 from evaluate import score_board, winning_move
 import math
 import random
+import sys
 
 def minimax(board, depth, alpha, beta, maximizing_player):
     action = 0
@@ -15,9 +16,9 @@ def minimax(board, depth, alpha, beta, maximizing_player):
     # if the current board is not terminal and we are maximizing
     if maximizing_player:
         if winning_move(board, oppPiece):
-            return (None, 10000000, 0)
+            return (None, sys.maxsize, 0)
         elif winning_move(board, curPiece):
-            return (None, -10000000, 0)
+            return (None, -sys.maxsize-1, 0)
 
         valid_moves = board.get_valid_moves(curPiece)
 
@@ -30,7 +31,7 @@ def minimax(board, depth, alpha, beta, maximizing_player):
         # for every valid column, we simulate dropping a piece with the help of a board copy
         # and run the minimax on it with decresed depth and switched player
         for move in valid_moves:
-            b_copy = board.copy()
+            b_copy = board.copyBoard()
             if move[1] == 0:
                 b_copy.drop_piece(move[0], curPiece)
             elif move[1] == 1:
@@ -52,16 +53,16 @@ def minimax(board, depth, alpha, beta, maximizing_player):
     else:  # for the minimizing player
         
         if winning_move(board, curPiece):
-            return (None, 10000000, 0)
+            return (None, sys.maxsize, 0)
         elif winning_move(board, oppPiece):
-            return (None, -10000000, 0)
+            return (None, -sys.maxsize-1, 0)
 
         valid_moves = board.get_valid_moves(oppPiece)
         value = math.inf
         column = 0
 
         for move in valid_moves:
-            b_copy = board.copy()
+            b_copy = board.copyBoard()
             if move[1] == 0:
                 b_copy.drop_piece(move[0], oppPiece)
             elif move[1] == 1:
@@ -74,5 +75,4 @@ def minimax(board, depth, alpha, beta, maximizing_player):
             beta = min(value, beta)
             if alpha >= beta:
                 break
-
         return column, value, action
