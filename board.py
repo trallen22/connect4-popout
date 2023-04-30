@@ -55,21 +55,8 @@ class Board:
             validMoves.append([col, 1])
         return validMoves
 
-    def no_moves(self, curPiece):
-        if len(self.get_valid_moves(curPiece)) == 0:
-            return True
-        else: 
-            return False
-
     def copyBoard(self):
         return Board(self.rows, self.cols, self.state.copy())
-
-    def get_string(self):
-        strBoard = ''
-        for i in range(self.rows):
-            for j in range(self.cols):
-                strBoard += str(int(self.state[i][j]))
-        return strBoard
 
     def __str__(self):
         curBoard = '\n'
