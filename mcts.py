@@ -17,15 +17,19 @@ def mcts(board, myPiece, oppPiece):
             copyBoard.popout_piece(move[0])
             nextNode = Node(copyBoard, move, root)
         root.children.append(nextNode)
-    for i in range(1000):
+    for i in range(2000):
         nextMove = selection(root, myPiece, oppPiece)
         expansion(nextMove, myPiece)
         sim_val = simulation(random.choice(nextMove.children), myPiece, oppPiece, 0)
         backpropagation(nextMove, sim_val)
-    print(f'root: visits {root.visits} wins {root.wins}')
+    bestWinRate = -1
+    bestNode = root
     for i in range(len(root.children)):
-        print(f'child {i}: visits {root.children[i].visits} wins {root.children[i].wins}')
-    return 0
+        curWinRate = root.children[i].wins / root.children[i].visits
+        if curWinRate > bestWinRate:
+            bestNode = root.children[i]
+            bestWinRate = curWinRate
+    return bestNode.curMove
 
 def selection(rootNode, myPiece, oppPiece):
     bestNode = rootNode
@@ -87,10 +91,9 @@ def backpropagation(curNode, winVal):
     curNode.wins += winVal
     if curNode.parent != None:
         backpropagation(curNode.parent, winVal)
-    
 
 def ucb(curNode):
-    EXPLORE_PARAM = 2
+    EXPLORE_PARAM = sqrt(2)
     averageWins = curNode.wins / curNode.visits
     underRoot = sqrt(log(curNode.parent.visits) / curNode.visits)
     return averageWins + EXPLORE_PARAM * underRoot
