@@ -9,22 +9,23 @@ def mcts(board, myPiece, oppPiece):
     validMoves = board.get_valid_moves(myPiece)
     # creats root node children 
     for move in validMoves:
-        copyBoard = board.copy()
+        copyBoard = board.copyBoard()
         if move[1] == 0:
             copyBoard.drop_piece(move[0], myPiece)
-            nextNode = Node(copyBoard, root)
+            nextNode = Node(copyBoard, move, root)
         elif move[1] == 1:
             copyBoard.popout_piece(move[0])
-            nextNode = Node(copyBoard, root)
+            nextNode = Node(copyBoard, move, root)
         root.children.append(nextNode)
-    for i in range(100):
+    for i in range(1000):
         nextMove = selection(root, myPiece, oppPiece)
-        expanded = expansion(nextMove, myPiece)
-        sim_val = simulation(nextMove, expanded, myPiece, oppPiece, 0)
-        root.wins += sim_val
-        root.visits += 1
-
-    return nextMove
+        expansion(nextMove, myPiece)
+        sim_val = simulation(random.choice(nextMove.children), myPiece, oppPiece, 0)
+        backpropagation(nextMove, sim_val)
+    print(f'root: visits {root.visits} wins {root.wins}')
+    for i in range(len(root.children)):
+        print(f'child {i}: visits {root.children[i].visits} wins {root.children[i].wins}')
+    return 0
 
 def selection(rootNode, myPiece, oppPiece):
     bestNode = rootNode
@@ -34,18 +35,24 @@ def selection(rootNode, myPiece, oppPiece):
         if curVal > value:
             bestNode = n
             value = curVal
-    bestNode.visits += 1
-    # recursively search for best node by ucb 
+    # recursively search for best node by ucb   
     if len(bestNode.children) != 0:
-        bestNode = selection(bestNode.curBoard, myPiece, oppPiece)
-
+        bestNode = selection(bestNode, myPiece, oppPiece)
     return bestNode
 
 def expansion(curNode, curPiece):
-    curNode.visits += 1
-    return curNode.curBoard.get_valid_moves(curPiece)
+    validMoves = curNode.curBoard.get_valid_moves(curPiece)
+    for move in validMoves:
+        copyBoard = curNode.curBoard.copyBoard()
+        if move[1] == 0:
+            copyBoard.drop_piece(move[0], curPiece)
+            nextNode = Node(copyBoard, move, curNode)
+        elif move[1] == 1:
+            copyBoard.popout_piece(move[0])
+            nextNode = Node(copyBoard, move, curNode)
+        curNode.children.append(nextNode)
 
-def simulation(curNode, listNextMoves, myPiece, oppPiece, curTurn):
+def simulation(curNode, myPiece, oppPiece, curTurn):
     # check who's turn 
     if curTurn == 0:
         curPiece = myPiece
@@ -55,23 +62,32 @@ def simulation(curNode, listNextMoves, myPiece, oppPiece, curTurn):
         curPiece = oppPiece
         otherPiece = myPiece
         nextTurn = 0
-    nextMove = random.choice(listNextMoves)
-    copyBoard = curNode.curBoard.copy()
-    if nextMove[1] == 0:
-        copyBoard.drop_piece(nextMove[0], curPiece)
-    elif nextMove[1] == 1:
-        copyBoard.popout_piece(nextMove[0])
-    if len(copyBoard.get_valid_moves(curPiece)) == 0:
-        winVal = 0
-    elif winning_move(copyBoard, curPiece):
-        winVal = 1
-    elif winning_move(copyBoard, otherPiece):
+    copyBoard = curNode.curBoard.copyBoard()
+    validMoves = copyBoard.get_valid_moves(curPiece)
+    if len(validMoves) == 0:
         winVal = 0
     else:
-        # TODO: update wins and visits
-        winVal = simulation(Node(copyBoard), copyBoard.get_valid_moves(curPiece), myPiece, oppPiece, nextTurn)
-    curNode.wins += winVal
+        nextMove = random.choice(validMoves)
+        if nextMove[1] == 0:
+            copyBoard.drop_piece(nextMove[0], curPiece)
+        elif nextMove[1] == 1:
+            copyBoard.popout_piece(nextMove[0])
+        # check if terminal node 
+        if winning_move(copyBoard, myPiece):
+            winVal = 1
+        elif winning_move(copyBoard, oppPiece):
+            winVal = 0
+        else:
+            winVal = simulation(Node(copyBoard), myPiece, oppPiece, nextTurn)
+        curNode.wins += winVal
     return winVal
+
+def backpropagation(curNode, winVal):
+    curNode.visits += 1
+    curNode.wins += winVal
+    if curNode.parent != None:
+        backpropagation(curNode.parent, winVal)
+    
 
 def ucb(curNode):
     EXPLORE_PARAM = 2
