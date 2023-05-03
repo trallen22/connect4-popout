@@ -135,7 +135,7 @@ while play:
                     turn = AI_TURN
 
         # MINIMAX
-        elif turn == AI_TURN or turn and (mindset == 'minimax' or mindset == 'a'):
+        elif (turn == AI_TURN or turn) and (mindset == 'minimax' or mindset == 'a'):
             move = bot.chooseMove(curBoard, AI_PIECE, PLAYER_PIECE)
             if move[1] == 0:  # drop
                 curBoard.drop_piece(move[0], AI_PIECE)
@@ -143,7 +143,7 @@ while play:
                 curBoard.popout_piece(move[0])
             else:
                 print('something went wrong')
-            os.system('clear')
+            #os.system('clear')
             print(curBoard)
             print(f'last move: action = {move[1]} col = {move[0]}')
             if winning_move(curBoard, AI_PIECE):
@@ -164,7 +164,7 @@ while play:
                 curBoard.popout_piece(nextMove[0])
             else:
                 print('something went wrong')
-            os.system('clear')
+            #os.system('clear')
             print(curBoard)
             print(f'last move: action = {nextMove[1]} col = {nextMove[0]}')
             if winning_move(curBoard, AI_PIECE):
