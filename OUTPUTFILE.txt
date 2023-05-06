@@ -10,3 +10,24 @@ draw: 0
 MCTSBOT: 7
 MINIMAXBOT: 93
 draw: 0
+##### MCTSBOT vs RANDOMBOT
+MCTSBOT: 98
+RANDOMBOT: 2
+draw: 0
+##### MINIMAXBOT vs RANDOMBOT
+MINIMAXBOT: 100
+RANDOMBOT: 0
+draw: 0
+
+##### defensiveBot vs MINIMAXBOT
+defensiveBot: 0
+MINIMAXBOT: 100
+draw: 0
+##### defensiveBot vs RANDOMBOT
+defensiveBot: 22
+RANDOMBOT: 78
+draw: 0
+##### defensiveBot vs MCTSBOT
+defensiveBot: 0
+MCTSBOT: 100
+draw: 0

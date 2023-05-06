@@ -1,8 +1,9 @@
-from board import Board 
+from board import Board
 from random import choice
 
+
 class RandomBot:
-    
+
     def __init__(self, piece):
         self.piece = piece
 
@@ -12,7 +13,6 @@ class RandomBot:
             board.drop_piece(bestMove[0], myPiece)
         else:
             board.popout_piece(bestMove[0])
-        
-    
+
     def __str__(self):
         return 'RANDOMBOT'
