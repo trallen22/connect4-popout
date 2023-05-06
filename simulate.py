@@ -35,6 +35,8 @@ def simGame(bot1, bot2):
             else:
                 turn = BOT2TURN
         elif turn == BOT2TURN:
+            if len(curBoard.get_valid_moves(bot1.piece)) == 0:
+                return 'draw'
             bot2.playMove(curBoard, bot2.piece, bot1.piece)
             if SHOWBOARD:
                 system('clear')

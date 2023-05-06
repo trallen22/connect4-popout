@@ -6,7 +6,7 @@ class MiniMaxBot:
         self.piece = piece
 
     def playMove(self, board, myPiece, oppPiece):
-        DEPTH = 4
+        DEPTH = 2
         col, val, action = minimax(board, DEPTH, -inf, inf, True, myPiece, oppPiece)
         bestMove = [col, action]
         if bestMove[1] == 0:

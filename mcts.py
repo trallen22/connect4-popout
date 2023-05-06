@@ -4,22 +4,25 @@ from evaluate import winning_move
 import random
 from math import sqrt, log
 
-def mcts(board, myPiece, oppPiece):
-    root = Node(board)
-    validMoves = board.get_valid_moves(myPiece)
-    # creats root node children 
-    for move in validMoves:
-        copyBoard = board.copyBoard()
-        if move[1] == 0:
-            copyBoard.drop_piece(move[0], myPiece)
-            nextNode = Node(copyBoard, move, root)
-        elif move[1] == 1:
-            copyBoard.popout_piece(move[0])
-            nextNode = Node(copyBoard, move, root)
-        root.children.append(nextNode)
-    for i in range(3000):
+def mcts(board, myPiece, oppPiece, rootNode=None):
+    if rootNode == None:
+        root = Node(board,curTurn=0)
+        validMoves = board.get_valid_moves(myPiece)
+        # creates root node children 
+        for move in validMoves:
+            copyBoard = board.copyBoard()
+            if move[1] == 0:
+                copyBoard.drop_piece(move[0], myPiece)
+                nextNode = Node(copyBoard, move, root, 1)
+            elif move[1] == 1:
+                copyBoard.popout_piece(move[0])
+                nextNode = Node(copyBoard, move, root, 1)
+            root.children.append(nextNode)        
+    else:
+        root = rootNode
+    while root.visits <= 4000:
         nextMove = selection(root, myPiece, oppPiece)
-        expansion(nextMove, myPiece)
+        expansion(nextMove, myPiece, oppPiece, nextMove.curTurn)
         sim_val = simulation(random.choice(nextMove.children), myPiece, oppPiece, 0)
         backpropagation(nextMove, sim_val)
     bestWinRate = -1
@@ -30,7 +33,7 @@ def mcts(board, myPiece, oppPiece):
         if curWinRate > bestWinRate:
             bestNode = root.children[i]
             bestWinRate = curWinRate
-    return bestNode.curMove
+    return bestNode.curMove, bestNode
 
 def selection(rootNode, myPiece, oppPiece):
     bestNode = rootNode
@@ -45,16 +48,22 @@ def selection(rootNode, myPiece, oppPiece):
         bestNode = selection(bestNode, myPiece, oppPiece)
     return bestNode
 
-def expansion(curNode, curPiece):
-    validMoves = curNode.curBoard.get_valid_moves(curPiece)
+def expansion(curNode, curPiece, oppPiece, curTurn):
+    if curTurn == 0:
+        nextTurn = 1
+        piece = curPiece
+    else:
+        nextTurn = 0
+        piece = oppPiece
+    validMoves = curNode.curBoard.get_valid_moves(piece)
     for move in validMoves:
         copyBoard = curNode.curBoard.copyBoard()
         if move[1] == 0:
-            copyBoard.drop_piece(move[0], curPiece)
-            nextNode = Node(copyBoard, move, curNode)
+            copyBoard.drop_piece(move[0], piece)
+            nextNode = Node(copyBoard, move, curNode, nextTurn)
         elif move[1] == 1:
             copyBoard.popout_piece(move[0])
-            nextNode = Node(copyBoard, move, curNode)
+            nextNode = Node(copyBoard, move, curNode, nextTurn)
         curNode.children.append(nextNode)
 
 def simulation(curNode, myPiece, oppPiece, curTurn):
@@ -128,7 +137,7 @@ def backpropagation(curNode, winVal):
         backpropagation(curNode.parent, winVal)
 
 def ucb(curNode):
-    EXPLORE_PARAM = sqrt(6)
+    EXPLORE_PARAM = sqrt(4)
     averageWins = curNode.wins / curNode.visits
     underRoot = sqrt(log(curNode.parent.visits) / curNode.visits)
     return averageWins + EXPLORE_PARAM * underRoot

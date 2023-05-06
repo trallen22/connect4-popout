@@ -10,7 +10,7 @@ from tqdm import tqdm
 
 MY_PIECE = 1
 AI_PIECE = 2
-NUMGAMES = 100
+NUMGAMES = 200
 OUTPUTFILE = 'OUTPUTFILE.txt'
 
 bot1 = MctsBot(AI_PIECE)

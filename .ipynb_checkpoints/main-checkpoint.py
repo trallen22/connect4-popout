@@ -3,6 +3,7 @@ from new_minimax import minimax
 from mcts import mcts
 from evaluate import winning_move
 from minimaxBot import MiniMaxBot
+from mctsBot import MctsBot
 
 import math
 import random
@@ -18,8 +19,8 @@ AI_TURN = 1
 # for when AI are playing each other
 MCTS_TURN = 0
 MINIMAX_TURN = 1
-MCTS_PIECE = 1
-MINIMAX_PIECE = 2
+MCTS_PIECE = 4
+MINIMAX_PIECE = 5
 
 botPlayEnabled = 0
 
@@ -43,6 +44,7 @@ while chooseAI:
         chooseAI = 0
         turn = random.choice([PLAYER_TURN, AI_TURN])
     elif mindset.lower() == 'mcts' or mindset.lower() == 'b':
+        bot = MctsBot(MCTS_PIECE)
         chooseAI = 0
         turn = random.choice([PLAYER_TURN, AI_TURN])
     elif mindset.lower() == 'duel' or mindset.lower() == 'c':
@@ -120,8 +122,9 @@ while play:
                     break
                 else:
                     print('invalid move')
-            os.system('clear')
+            # os.system('clear')
             if not makeMove:
+                print('after player move')
                 print(curBoard)
                 print(
                     f'last move: action = {player_move[0]} col = {player_move[1]}')
@@ -135,7 +138,7 @@ while play:
                     turn = AI_TURN
 
         # MINIMAX
-        elif turn == AI_TURN or turn and (mindset == 'minimax' or mindset == 'a'):
+        elif (turn == AI_TURN or turn) and (mindset == 'minimax' or mindset == 'a'):
             move = bot.chooseMove(curBoard, AI_PIECE, PLAYER_PIECE)
             if move[1] == 0:  # drop
                 curBoard.drop_piece(move[0], AI_PIECE)
@@ -143,7 +146,7 @@ while play:
                 curBoard.popout_piece(move[0])
             else:
                 print('something went wrong')
-            os.system('clear')
+            #os.system('clear')
             print(curBoard)
             print(f'last move: action = {move[1]} col = {move[0]}')
             if winning_move(curBoard, AI_PIECE):
@@ -157,17 +160,12 @@ while play:
 
         # MCTS
         elif turn == AI_TURN and (mindset == 'mcts' or mindset == 'b'):
-            nextMove = mcts(curBoard, AI_PIECE, PLAYER_PIECE)
-            if nextMove[1] == 0:  # drop
-                curBoard.drop_piece(nextMove[0], AI_PIECE)
-            elif nextMove[1] == 1:  # pop
-                curBoard.popout_piece(nextMove[0])
-            else:
-                print('something went wrong')
-            os.system('clear')
+            bot.playMove(curBoard, bot.piece, PLAYER_PIECE)
+            
+            #os.system('clear')
             print(curBoard)
-            print(f'last move: action = {nextMove[1]} col = {nextMove[0]}')
-            if winning_move(curBoard, AI_PIECE):
+            # print(f'last move: action = {nextMove[1]} col = {nextMove[0]}')
+            if winning_move(curBoard, bot.piece):
                 print("COMPUTER WINS")
                 play = 0
             elif winning_move(curBoard, PLAYER_PIECE):
